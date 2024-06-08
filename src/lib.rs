@@ -23,8 +23,9 @@ impl DieselDemo {
     }
 
     pub fn run(&mut self) {
-        self.display_all_posts();
-        self.add_new_post();
+        //self.display_all_posts();
+        //self.add_new_post();
+        self.display_unpublished_posts();
     }
 
     fn display_all_posts(&mut self) {
@@ -62,5 +63,19 @@ impl DieselDemo {
             .values(&new_post)
             .get_result::<Post>(&mut self.database_connection)
             .expect("Error adding a new post");
+    }
+
+    fn display_unpublished_posts(&mut self) {
+        use schema::posts::dsl::*;
+
+        let unpub_posts = posts
+            .filter(is_published.eq(false))
+            .load::<Post>(&mut self.database_connection)
+            .expect("Error getting all unpublished posts");
+
+        println!("Displaying UNPUBLISHED posts...");
+        for post in unpub_posts {
+            println!("{}: {}", post.id, post.title);
+        }
     }
 }
