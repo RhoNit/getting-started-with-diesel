@@ -1,0 +1,10 @@
+[package]
+name = "diesel_with_postgres"
+version = "0.1.0"
+authors = ["Ranit Biswas <ranitbiswas.cs@gmail.com>"]
+edition = "2021"
+
+[dependencies]
+diesel = { version = "2.2.0", features = ["postgres"] }
+dotenv = "0.15.0"
+serde = { version = "1.0.203", features = ["derive"] }
