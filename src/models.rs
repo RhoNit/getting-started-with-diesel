@@ -6,6 +6,7 @@ pub struct Post {
     pub title: String,
     pub body: String,
     pub is_published: bool,
+    pub likes: i32,
 }
 
 #[derive(Insertable)]
@@ -13,6 +14,7 @@ pub struct Post {
 pub struct NewPost {
     pub title: String,
     pub body: String,
+    
 }
 
 impl NewPost {

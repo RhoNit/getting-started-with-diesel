@@ -7,5 +7,6 @@ diesel::table! {
         title -> Varchar,
         body -> Text,
         is_published -> Bool,
+        likes -> Int4,
     }
 }
