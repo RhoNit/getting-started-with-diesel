@@ -1,4 +1,4 @@
-#[macro_use]
+//#[macro_use]
 extern crate diesel;
 
 mod schema;
@@ -9,6 +9,7 @@ use std::io;
 use diesel::prelude::*;
 use diesel::{Connection, PgConnection};
 use models::{NewPost, Post};
+use schema::posts::is_published;
 
 pub struct DieselDemo {
     database_connection: PgConnection,
@@ -23,9 +24,11 @@ impl DieselDemo {
     }
 
     pub fn run(&mut self) {
-        //self.display_all_posts();
-        //self.add_new_post();
-        self.display_unpublished_posts();
+        self.display_all_posts();
+        // self.delete_post();
+        // self.publish_post();
+        self.add_new_post();
+        // self.display_unpublished_posts();
     }
 
     fn display_all_posts(&mut self) {
@@ -38,8 +41,7 @@ impl DieselDemo {
         println!("Displaying all the posts...");
 
         for post in all_posts {
-            println!("{}", post.title);
-            println!("{}", post.body);
+            println!("{} | {} | {}", post.id, post.title.trim(), post.body.trim());
             println!("")
         }
     }
@@ -57,12 +59,44 @@ impl DieselDemo {
         println!("Body: ");
         io::stdin().read_line(&mut body).unwrap();
 
-        let new_post = NewPost::new(title, body);
+        let title = title.trim();
+        let body = body.trim();
+
+        let new_post = NewPost::new(title.to_string(), body.to_string());
 
         diesel::insert_into(posts::table)
             .values(&new_post)
             .get_result::<Post>(&mut self.database_connection)
             .expect("Error adding a new post");
+    }
+
+    fn publish_post(&mut self) {
+        use schema::posts::dsl::*;
+
+        let mut post_id = String::new();
+        println!("Enter the post_id which you want to publish: ");
+        io::stdin().read_line(&mut post_id).unwrap();
+
+        let post_id = post_id.trim().parse::<i32>().unwrap();
+
+        diesel::update(posts.find(post_id))
+            .set(is_published.eq(true))
+            .get_result::<Post>(&mut self.database_connection)
+            .expect("Error publishing post");
+    }
+
+    fn delete_post(&mut self) {
+        use schema::posts::dsl::*;
+
+        let mut post_id = String::new();
+        println!("Enter the post_id, you want to delete: ");
+        io::stdin().read_line(&mut post_id).unwrap();
+
+        let post_id = post_id.trim().parse::<i32>().unwrap();
+
+        diesel::delete(posts.find(post_id))
+            .execute(&mut self.database_connection)
+            .expect("Error while deleting a post");
     }
 
     fn display_unpublished_posts(&mut self) {

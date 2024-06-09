@@ -1,4 +1,6 @@
 use super::schema::posts;
+use diesel::deserialize::Queryable;
+use diesel::Insertable;
 
 #[derive(Queryable)]
 pub struct Post {
